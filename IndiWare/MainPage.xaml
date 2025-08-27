@@ -1,0 +1,109 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="IndiWare.MainPage">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="20">
+                <Grid Margin="5" ColumnSpacing="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <!-- SEARCH BAR -->
+                    <Entry x:Name="SearchEntry"
+                        Placeholder="Text to search..."
+                        Grid.Column="0" />
+                    <!-- INDEX BUTTON -->
+                    <Button Text="Index"
+                        Clicked="OnIndexFilesClicked"
+                        Grid.Column="1" />
+                    <!-- SEARCH BUTTON -->
+                    <Button Text="Search"
+                        Clicked="OnSearchFileClicked"
+                        Grid.Column="2" />
+                </Grid>
+
+                <CollectionView x:Name="ResultsView"
+                ItemsSource="{x:Binding Results}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="5" />
+                    </CollectionView.ItemsLayout>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <!-- BORDER CARD -->
+                            <Border Stroke="LightGray"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="1"
+                                    BackgroundColor="LightGray"
+                                    Padding="10">
+                                
+                                <Border.Shadow>
+                                    <Shadow Brush="Black"
+                                            Opacity="0.2"
+                                            Offset="0,4"
+                                            Radius="8"/>
+                                </Border.Shadow>
+
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding FileName}" FontAttributes="Bold" FontSize="16" TextColor="Black" />
+                                    <Label Text="Path:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding FilePath}" FontSize="12" TextColor="Black"/>
+                                    <Label Text="Extension:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding FileExtension}" TextColor="Black"/>
+                                    <Label Text="Size (bytes):" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding FileSize}" TextColor="Black"/>
+                                    <Label Text="Created:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding Created}" TextColor="Black"/>
+                                    <Label Text="Last Modified:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
+                                    <Label Text="{Binding LastModified}" TextColor="Black"/>
+                                    
+                                </VerticalStackLayout>
+
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnViewFileTapped"
+                                          CommandParameter="{Binding .}" />
+                                    
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                    <!-- FOOTER WITH BUTTON -->
+                    <CollectionView.Footer>
+                        <Grid Padding="10"
+                              HorizontalOptions="FillAndExpand"
+                              ColumnDefinitions="*">
+                            
+                            <Button Text="Load more"
+                                    Clicked="OnLoadMoreClicked"
+                                    x:Name="LoadMoreButton"
+                                    IsVisible="false"
+                                    HorizontalOptions="FillAndExpand"
+                                    Grid.Column="0"
+                                    CornerRadius="8"
+                                    HeightRequest="45"/>
+                            
+                        </Grid>
+                    </CollectionView.Footer>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- LOADING OVERLAY -->
+        <Grid x:Name="LoadingOverlay"
+              BackgroundColor="#80000000"
+              IsVisible="False"
+              InputTransparent="False">
+            <ActivityIndicator IsRunning="True"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center"
+                               Color="White"
+                               WidthRequest="50"
+                               HeightRequest="50" />
+        </Grid>
+    </Grid>
+
+</ContentPage>
