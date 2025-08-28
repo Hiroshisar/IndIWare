@@ -1,7 +1,6 @@
 ﻿using IndiWare.Models;
 using IndiWare.Service;
 using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace IndiWare
 {
@@ -229,32 +228,39 @@ namespace IndiWare
             }
         }
 
-        // EVENT HANDLER FOR TAPPING A FILE ITEM
-        private void OnViewFileTapped(object sender, TappedEventArgs e)
+        // EVENT HANDLER FOR CLICKED A FILE ITEM
+        public void OnViewFileClicked(object sender, EventArgs e)
         {
-            // OPEN FILE LOCATION IN EXPLORER
-            if (e.Parameter is FileItem file)
+            if (sender is Button button && button.CommandParameter is FileItem file)
             {
-                // VALIDATE FILE PATH
-                if (!string.IsNullOrEmpty(file.FilePath) && File.Exists(file.FilePath))
+                LoadSelectedItem(file);
+            }
+        }
+
+        // OPEN FILE LOCATION IN EXPLORER
+        private void LoadSelectedItem(FileItem file)
+        {
+
+            // VALIDATE FILE PATH
+            if (!string.IsNullOrEmpty(file.FilePath) && File.Exists(file.FilePath))
+            {
+                try
                 {
-                    try
-                    {
-                        // OPEN FILE LOCATION IN EXPLORER AND SELECT FILE
-                        Process.Start("explorer.exe", $"/select,\"{file.FilePath}\"");
-                    }
-                    catch (Exception ex)
-                    {
-                        // LOG ERROR IF PROCESS FAILS
-                        Debug.WriteLine($"Error opening file: {ex.Message}");
-                    }
+                    // OPEN FILE LOCATION IN EXPLORER AND SELECT FILE
+                    Process.Start("explorer.exe", $"/select,\"{file.FilePath}\"");
                 }
-                else
+                catch (Exception ex)
                 {
-                    // LOG IF FILE PATH IS INVALID OR FILE DOESN'T EXIST
-                    Debug.WriteLine("Invalid file path or non-existent file.");
+                    // LOG ERROR IF PROCESS FAILS
+                    Debug.WriteLine($"Error opening file: {ex.Message}");
                 }
             }
+            else
+            {
+                // LOG IF FILE PATH IS INVALID OR FILE DOESN'T EXIST
+                Debug.WriteLine("Invalid file path or non-existent file.");
+            }
+
         }
 
         // EVENT HANDLER FOR Load More BUTTON CLICK
