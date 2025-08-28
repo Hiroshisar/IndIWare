@@ -1,14 +1,13 @@
 ﻿using IndiWare.Models;
 using IndiWare.Service;
 using System.Diagnostics;
-using System.Reflection.Metadata.Ecma335;
 
 namespace IndiWare
 {
     public partial class MainPage : ContentPage
     {
-        public List<FileItem> _results { get; set; } = new();
-        BulkObservableCollection<FileItem> Results = new();
+        public List<FileItem> _results { get; set; } = [];
+        BulkObservableCollection<FileItem> Results = [];
         private readonly DatabaseService _db;
         private int _currentPage = 0;
         private const int _pageSize = 100;
@@ -22,7 +21,7 @@ namespace IndiWare
 
         private async void OnIndexFilesClicked(object sender, EventArgs e)
         {
-            // MAKE Loading Overlay VISIBLE
+            // MAKE LOADING OVERLAY VISIBLE
             LoadingOverlay.IsVisible = true;
 
             // CLEAR PREVIOUS RESULTS
@@ -41,6 +40,7 @@ namespace IndiWare
                 {
                     // IF NOT EMPTY, CONFIRM REINDEXING
                     bool confirm = await DisplayAlert("Reindex", "The database is not empty. Do you want to reindex all files? This will erase existing data.", "Yes", "No");
+
                     // IF USER DECLINES, EXIT
                     if (!confirm)
                     {
@@ -168,11 +168,11 @@ namespace IndiWare
         private void OnSearchFileClicked(object sender, EventArgs e)
         {
             // START ASYNC SEARCH OPERATION
-            _ = SearchFileAsync();
+            SearchFileAsync();
         }
 
         // ASYNC METHOD TO PERFORM FILE SEARCH
-        private async Task SearchFileAsync()
+        private async void SearchFileAsync()
         {
             try
             {
@@ -229,35 +229,42 @@ namespace IndiWare
             }
         }
 
-        // EVENT HANDLER FOR TAPPING A FILE ITEM
-        private void OnViewFileTapped(object sender, TappedEventArgs e)
+        // EVENT HANDLER FOR CLICKED A FILE ITEM
+        public void OnViewFileClicked(object sender, EventArgs e)
         {
-            // OPEN FILE LOCATION IN EXPLORER
-            if (e.Parameter is FileItem file)
+            if (sender is Button button && button.CommandParameter is FileItem file)
             {
-                // VALIDATE FILE PATH
-                if (!string.IsNullOrEmpty(file.FilePath) && File.Exists(file.FilePath))
-                {
-                    try
-                    {
-                        // OPEN FILE LOCATION IN EXPLORER AND SELECT FILE
-                        Process.Start("explorer.exe", $"/select,\"{file.FilePath}\"");
-                    }
-                    catch (Exception ex)
-                    {
-                        // LOG ERROR IF PROCESS FAILS
-                        Debug.WriteLine($"Error opening file: {ex.Message}");
-                    }
-                }
-                else
-                {
-                    // LOG IF FILE PATH IS INVALID OR FILE DOESN'T EXIST
-                    Debug.WriteLine("Invalid file path or non-existent file.");
-                }
+               LoadSelectedItem(file);
             }
         }
 
-        // EVENT HANDLER FOR Load More BUTTON CLICK
+        // OPEN FILE LOCATION IN EXPLORER
+        private void LoadSelectedItem(FileItem file)
+        {
+
+            // VALIDATE FILE PATH
+            if (!string.IsNullOrEmpty(file.FilePath) && File.Exists(file.FilePath))
+            {
+                try
+                {
+                    // OPEN FILE LOCATION IN EXPLORER AND SELECT FILE
+                    Process.Start("explorer.exe", $"/select,\"{file.FilePath}\"");
+                }
+                catch (Exception ex)
+                {
+                    // LOG ERROR IF PROCESS FAILS
+                    Debug.WriteLine($"Error opening file: {ex.Message}");
+                }
+            }
+            else
+            {
+                // LOG IF FILE PATH IS INVALID OR FILE DOESN'T EXIST
+                Debug.WriteLine("Invalid file path or non-existent file.");
+            }
+
+        }
+
+        // EVENT HANDLER FOR LOAD MORE BUTTON CLICK
         public void OnLoadMoreClicked(object sender, EventArgs e)
         {
             // START ASYNC LOAD MORE ITEMS OPERATION
@@ -294,13 +301,13 @@ namespace IndiWare
                 }
                 else
                 {
-                    // HIDE Load More BUTTON IF NO MORE ITEMS
+                    // HIDE LOAD MORE BUTTON IF NO MORE ITEMS
                     LoadMoreButton.IsVisible = false;
                 }
             }
             finally
             {
-                // HIDE Loading Overlay WHEN DONE
+                // HIDE LOADING OVERLAY WHEN DONE
                 LoadingOverlay.IsVisible = false;
             }
         }
