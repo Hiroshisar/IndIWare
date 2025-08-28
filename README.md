@@ -7,7 +7,7 @@
 # IndiWare (IW) – File Indexing Tool
 
 ## 📌 Overview
-**IndiWare (fusion between Indie, Index and software)** is a personal project, created both as a learning exercise and to address a practical need.  
+**IndIWare (fusion between Indie, Index and software)** is a personal project, created both as a learning exercise and to address a practical need.  
 
 The application is developed with **.NET MAUI** and **C#**, and its purpose is to index files on a PC in order to provide a **faster and more organized search system** compared to the default Windows search.
 
