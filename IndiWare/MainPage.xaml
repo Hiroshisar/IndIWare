@@ -5,24 +5,30 @@
     <Grid>
         <ScrollView>
             <VerticalStackLayout Padding="20">
+                <Button Text="Index"
+                        Clicked="OnIndexFilesClicked"
+                        x:Name="IndexButton"
+                        HorizontalOptions="FillAndExpand"
+                        Grid.Column="0"
+                        CornerRadius="8"
+                        HeightRequest="60"
+                        Margin="10"/>
+
                 <Grid Margin="5" ColumnSpacing="10">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200" />
                     </Grid.ColumnDefinitions>
+
                     <!-- SEARCH BAR -->
                     <Entry x:Name="SearchEntry"
                         Placeholder="Text to search..."
                         Grid.Column="0" />
-                    <!-- INDEX BUTTON -->
-                    <Button Text="Index"
-                        Clicked="OnIndexFilesClicked"
-                        Grid.Column="1" />
+
                     <!-- SEARCH BUTTON -->
                     <Button Text="Search"
                         Clicked="OnSearchFileClicked"
-                        Grid.Column="2" />
+                        Grid.Column="1" />
                 </Grid>
 
                 <CollectionView x:Name="ResultsView"
@@ -33,41 +39,107 @@
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <!-- BORDER CARD -->
-                            <Border Stroke="LightGray"
-                                    StrokeShape="RoundRectangle 12"
-                                    StrokeThickness="1"
-                                    BackgroundColor="LightGray"
-                                    Padding="10">
-                                
-                                <Border.Shadow>
-                                    <Shadow Brush="Black"
-                                            Opacity="0.2"
-                                            Offset="0,4"
-                                            Radius="8"/>
-                                </Border.Shadow>
-                                <!--  FILE DETAILS  -->
-                                <VerticalStackLayout>
-                                    <Label Text="{Binding FileName}" FontAttributes="Bold" FontSize="16" TextColor="Black" />
-                                    <Label Text="Path:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding FilePath}" FontSize="12" TextColor="Black"/>
-                                    <Label Text="Extension:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding FileExtension}" TextColor="Black"/>
-                                    <Label Text="Size (bytes):" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding FileSize}" TextColor="Black"/>
-                                    <Label Text="Created:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding Created}" TextColor="Black"/>
-                                    <Label Text="Last Modified:" FontAttributes="Bold" FontSize="14" TextColor="Black"/>
-                                    <Label Text="{Binding LastModified}" TextColor="Black"/>
-                                    
-                                </VerticalStackLayout>
-                                <!--  HANDLE CLICK ON CARD  -->
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="OnViewFileTapped"
-                                          CommandParameter="{Binding .}" />
-                                    
-                                </Border.GestureRecognizers>
-                            </Border>
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="200" />
+                                </Grid.ColumnDefinitions>
+
+                                <!-- CARD -->
+                                <Border Grid.Column="0"
+                                        Stroke="#A88CFF"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="1.5"
+                                        BackgroundColor="White"
+                                        Padding="12"
+                                        HorizontalOptions="FillAndExpand">
+
+                                    <Border.Shadow>
+                                        <Shadow Brush="Black"
+                                                Opacity="0.15"
+                                                Offset="0,3"
+                                                Radius="6"/>
+                                    </Border.Shadow>
+
+                                    <VerticalStackLayout Spacing="6">
+                                        <!-- File name -->
+                                        <Label Text="{Binding FileName}"
+                                               FontAttributes="Bold"
+                                               FontSize="16"
+                                               TextColor="#4B3FA6"/>
+
+                                        <!-- File path -->
+                                        <Label Text="{Binding FilePath}"
+                                               FontSize="12"
+                                               TextColor="#555"/>
+
+                                        <!-- Tags row -->
+                                        <HorizontalStackLayout Spacing="8">
+                                            <!-- Extension -->
+                                            <Frame Padding="4,2"
+                                                   BackgroundColor="#EEE9FF"
+                                                   BorderColor="#A88CFF"
+                                                   CornerRadius="6"
+                                                   HasShadow="False">
+                                                <Label Text="{Binding FileExtension}"
+                                                       FontSize="12"
+                                                       TextColor="#4B3FA6"/>
+                                            </Frame>
+
+                                            <!-- Size -->
+                                            <Frame Padding="4,2"
+                                                   BackgroundColor="#EEE9FF"
+                                                   BorderColor="#A88CFF"
+                                                   CornerRadius="6"
+                                                   HasShadow="False">
+                                                <Label Text="{Binding FileSizeReadable}"
+                                                       FontSize="12"
+                                                       TextColor="#4B3FA6"/>
+                                            </Frame>
+                                        </HorizontalStackLayout>
+
+                                        <!-- Dates -->
+                                        <Grid ColumnSpacing="10" RowSpacing="4">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Label Grid.Row="0" Grid.Column="0"
+                                                   Text="Created:"
+                                                   FontAttributes="Bold"
+                                                   FontSize="12"
+                                                   TextColor="#444"/>
+                                            <Label Grid.Row="0" Grid.Column="1"
+                                                   Text="{Binding Created}"
+                                                   FontSize="12"
+                                                   TextColor="#444"/>
+
+                                            <Label Grid.Row="1" Grid.Column="0"
+                                                   Text="Modified:"
+                                                   FontAttributes="Bold"
+                                                   FontSize="12"
+                                                   TextColor="#444"/>
+                                            <Label Grid.Row="1" Grid.Column="1"
+                                                   Text="{Binding LastModified}"
+                                                   FontSize="12"
+                                                   TextColor="#444"/>
+                                        </Grid>
+                                    </VerticalStackLayout>
+                                </Border>
+
+                                <!-- BUTTON -->
+                                <Button Grid.Column="1"
+                                        Text="Open"
+                                        Clicked="OnViewFileClicked"
+                                        CommandParameter="{Binding .}"
+                                        VerticalOptions="FillAndExpand"
+                                        HorizontalOptions="FillAndExpand" />
+                            </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
 
@@ -76,7 +148,7 @@
                         <Grid Padding="10"
                               HorizontalOptions="FillAndExpand"
                               ColumnDefinitions="*">
-                            
+
                             <Button Text="Load more"
                                     Clicked="OnLoadMoreClicked"
                                     x:Name="LoadMoreButton"
@@ -85,7 +157,7 @@
                                     Grid.Column="0"
                                     CornerRadius="8"
                                     HeightRequest="45"/>
-                            
+
                         </Grid>
                     </CollectionView.Footer>
                 </CollectionView>
