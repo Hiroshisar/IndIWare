@@ -62,20 +62,20 @@
                                     </Border.Shadow>
 
                                     <VerticalStackLayout Spacing="6">
-                                        <!-- File name -->
+                                        <!-- FILE NAME -->
                                         <Label Text="{Binding FileName}"
                                                FontAttributes="Bold"
                                                FontSize="16"
                                                TextColor="#4B3FA6"/>
 
-                                        <!-- File path -->
+                                        <!-- FILE PATH -->
                                         <Label Text="{Binding FilePath}"
                                                FontSize="12"
                                                TextColor="#555"/>
 
-                                        <!-- Tags row -->
+                                        <!-- TAGS ROW -->
                                         <HorizontalStackLayout Spacing="8">
-                                            <!-- Extension -->
+                                            <!-- EXTENSION -->
                                             <Frame Padding="4,2"
                                                    BackgroundColor="#EEE9FF"
                                                    BorderColor="#A88CFF"
@@ -86,7 +86,7 @@
                                                        TextColor="#4B3FA6"/>
                                             </Frame>
 
-                                            <!-- Size -->
+                                            <!-- SIZE -->
                                             <Frame Padding="4,2"
                                                    BackgroundColor="#EEE9FF"
                                                    BorderColor="#A88CFF"
@@ -98,7 +98,7 @@
                                             </Frame>
                                         </HorizontalStackLayout>
 
-                                        <!-- Dates -->
+                                        <!-- DATES -->
                                         <Grid ColumnSpacing="10" RowSpacing="4">
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="Auto"/>
