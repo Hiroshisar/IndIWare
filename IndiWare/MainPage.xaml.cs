@@ -1,6 +1,7 @@
 ﻿using IndiWare.Models;
 using IndiWare.Service;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace IndiWare
 {
@@ -11,7 +12,6 @@ namespace IndiWare
         private readonly DatabaseService _db;
         private int _currentPage = 0;
         private const int _pageSize = 100;
-        private bool _isLoadingMore = false;
 
         public MainPage(DatabaseService db)
         {
@@ -22,20 +22,26 @@ namespace IndiWare
 
         private async void OnIndexFilesClicked(object sender, EventArgs e)
         {
+            // MAKE Loading Overlay VISIBLE
             LoadingOverlay.IsVisible = true;
 
+            // CLEAR PREVIOUS RESULTS
             _results.Clear();
             Results.Clear();
 
             try
             {
+                // CHECK IF DATABASE IS EMPTY
                 if (await _db.IsDatabaseEmptyAsync())
                 {
+                    // IF EMPTY, PROMPT TO START INDEXING
                     await DisplayAlert("Indexing", "Starting file indexing. This may take a while depending on the number of files.", "OK");
                 }
                 else
                 {
+                    // IF NOT EMPTY, CONFIRM REINDEXING
                     bool confirm = await DisplayAlert("Reindex", "The database is not empty. Do you want to reindex all files? This will erase existing data.", "Yes", "No");
+                    // IF USER DECLINES, EXIT
                     if (!confirm)
                     {
                         LoadingOverlay.IsVisible = false;
@@ -43,24 +49,31 @@ namespace IndiWare
                     }
                 }
 
+                // DELAY TO ALLOW UI TO UPDATE
                 await Task.Delay(50);
 
+                // GET LIST OF ACCESSIBLE DRIVES
                 var rootPaths = GetAccessibleDrives();
 
+                // IF NO DRIVES FOUND, ALERT AND EXIT
                 if (rootPaths.Count == 0)
                 {
                     await DisplayAlert("No Drives", "No accessible drives found.", "OK");
                     return;
                 }
 
+                // SCAN EACH DRIVE AND COLLECT FILES
                 foreach (var rootPath in rootPaths)
                 {
+                    // SAFE FILE SCAN TO HANDLE PERMISSION ERRORS
                     List<string> files = await SafeFileScan(rootPath);
 
+                    // PROCESS EACH FILE AND ADD TO RESULTS, HANDLING ERRORS
                     foreach (var file in files)
                     {
                         try
                         {
+                            // CREATE FileItem OBJECT AND ADD TO RESULTS LIST
                             _results.Add(new FileItem
                             {
                                 FilePath = file,
@@ -77,6 +90,8 @@ namespace IndiWare
                         }
                     }
                 }
+
+                // SAVE ALL FILE RECORDS TO DATABASE
                 await _db.SaveManyAsync(_results);
             }
             catch (Exception ex)
@@ -85,68 +100,78 @@ namespace IndiWare
             }
             finally
             {
+                // HIDE Loading Overlay WHEN DONE
                 LoadingOverlay.IsVisible = false;
             }
         }
 
-
-
-        public async Task<List<string>> SafeFileScan(string rootPath)
+        // SAFE FILE SCAN METHOD TO HANDLE PERMISSION ERRORS
+        private async Task<List<string>> SafeFileScan(string rootPath)
         {
             List<string> list = [];
 
             try
             {
+                // GET FILES IN CURRENT DIRECTORY
                 foreach (var file in Directory.GetFiles(rootPath))
                 {
+                    // ADD EACH FILE TO LIST
                     list.Add(file);
                 }
 
+                // RECURSIVELY SCAN SUBDIRECTORIES
                 foreach (var dir in Directory.GetDirectories(rootPath))
                 {
+                    // RECURSIVE CALL TO SCAN SUBDIRECTORY
                     var subItems = await SafeFileScan(dir);
+                    // ADD SUBDIRECTORY FILES TO MAIN LIST
                     list.AddRange(subItems);
                 }
             }
             catch (Exception)
             {
-
+                // IGNORE ERRORS AND CONTINUE
             }
-
 
             return list;
         }
 
-        public static List<string> GetAccessibleDrives()
+        private static List<string> GetAccessibleDrives()
         {
+            // GET ALL DRIVES ON THE SYSTEM
             var drives = DriveInfo.GetDrives();
             var accessibleDrives = new List<string>();
 
+            // CHECK EACH DRIVE FOR ACCESSIBILITY
             foreach (var drive in drives)
             {
+                // SKIP IF DRIVE IS NOT READY AND NOT FIXED
                 if (!drive.IsReady && drive.DriveType != DriveType.Fixed)
-                    continue; // Evita CD vuoti, dischi non pronti o periferiche esterne
+                    continue;
 
                 try
                 {
-                    // Testa l’accesso al root del drive
+                    // TEST ACCESSIBILITY BY LISTING DIRECTORIES
                     var _ = drive.RootDirectory.GetDirectories();
                     accessibleDrives.Add(drive.RootDirectory.FullName);
                 }
                 catch
                 {
-                    // Ignora drive non accessibili
+                    // IGNORE NOT ACCESSIBLE DRIVES
                 }
             }
 
             return accessibleDrives;
         }
 
+        // EVENT HANDLER FOR SEARCH BUTTON CLICK
         private void OnSearchFileClicked(object sender, EventArgs e)
         {
+            // START ASYNC SEARCH OPERATION
             _ = SearchFileAsync();
         }
 
+        // ASYNC METHOD TO PERFORM FILE SEARCH
         private async Task SearchFileAsync()
         {
             try
@@ -156,8 +181,10 @@ namespace IndiWare
                 _results.Clear();
                 _currentPage = 0;
 
+                // GET SEARCH TEXT FROM INPUT
                 string searchText = SearchEntry.Text;
 
+                // VALIDATE INPUT
                 if (string.IsNullOrEmpty(searchText))
                 {
                     await DisplayAlert("Input Required", "Please enter a search term.", "OK");
@@ -167,10 +194,13 @@ namespace IndiWare
 
                 searchText = searchText.ToLowerInvariant().Trim();
 
+                // PERFORM DATABASE SEARCH
                 _results = await _db.GetSearchedAsync(searchText).ConfigureAwait(false);
 
+                // LOAD FIRST PAGE OF RESULTS
                 var page = _results.Take(_pageSize).ToList();
 
+                // UPDATE UI ON MAIN THREAD
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     Results.Clear();
@@ -181,60 +211,68 @@ namespace IndiWare
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Errore durante la ricerca: {ex.Message}");
-                await DisplayAlert("Errore", "Errore durante la ricerca dei file.", "OK");
+                // LOG ERROR AND ALERT USER
+                Debug.WriteLine($"Error searching: {ex.Message}");
+                await DisplayAlert("Error", "Error searching for files.", "OK");
             }
             finally
             {
+                // UPDATE UI ON MAIN THREAD
                 MainThread.BeginInvokeOnMainThread(async () =>
                 {
                     await DisplayAlert("Search Complete", $"Found {_results.Count} items.", "OK");
                     LoadingOverlay.IsVisible = false;
 
-                    // Making Load More button visible if there are more items to load
+                    // MAKE Load More BUTTON VISIBLE IF MORE PAGES EXIST
                     LoadMoreButton.IsVisible = true;
                 });
             }
         }
 
-
+        // EVENT HANDLER FOR TAPPING A FILE ITEM
         private void OnViewFileTapped(object sender, TappedEventArgs e)
         {
+            // OPEN FILE LOCATION IN EXPLORER
             if (e.Parameter is FileItem file)
             {
+                // VALIDATE FILE PATH
                 if (!string.IsNullOrEmpty(file.FilePath) && File.Exists(file.FilePath))
                 {
                     try
                     {
+                        // OPEN FILE LOCATION IN EXPLORER AND SELECT FILE
                         Process.Start("explorer.exe", $"/select,\"{file.FilePath}\"");
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"Errore nell'apertura del file: {ex.Message}");
+                        // LOG ERROR IF PROCESS FAILS
+                        Debug.WriteLine($"Error opening file: {ex.Message}");
                     }
                 }
                 else
                 {
-                    Debug.WriteLine("Percorso file non valido o file inesistente.");
+                    // LOG IF FILE PATH IS INVALID OR FILE DOESN'T EXIST
+                    Debug.WriteLine("Invalid file path or non-existent file.");
                 }
             }
         }
 
+        // EVENT HANDLER FOR Load More BUTTON CLICK
         public void OnLoadMoreClicked(object sender, EventArgs e)
         {
+            // START ASYNC LOAD MORE ITEMS OPERATION
             _ = LoadMoreItemsAsync();
 
         }
 
+        // ASYNC METHOD TO LOAD MORE ITEMS INTO THE RESULTS
         private async Task LoadMoreItemsAsync()
         {
             try
             {
-                if (_isLoadingMore) return;
-
-                _isLoadingMore = true;
                 LoadingOverlay.IsVisible = true;
 
+                // GET NEXT PAGE OF ITEMS
                 var nextItems = _results
                     .Skip(_currentPage * _pageSize)
                     .Take(_pageSize)
@@ -242,26 +280,28 @@ namespace IndiWare
 
                 if (nextItems.Count > 0)
                 {
-                    // break for responsive UI
+                    // DELAY TO ALLOW UI TO UPDATE
                     await Task.Delay(50);
 
+                    // UPDATE UI ON MAIN THREAD
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         Results.AddRange(nextItems);
                     });
 
+                    // INCREMENT CURRENT PAGE
                     _currentPage++;
                 }
                 else
                 {
-                    // Hiding Load More button if no more items
+                    // HIDE Load More BUTTON IF NO MORE ITEMS
                     LoadMoreButton.IsVisible = false;
                 }
             }
             finally
             {
+                // HIDE Loading Overlay WHEN DONE
                 LoadingOverlay.IsVisible = false;
-                _isLoadingMore = false;
             }
         }
     }
