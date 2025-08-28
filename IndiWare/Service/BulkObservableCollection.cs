@@ -16,7 +16,7 @@ public class BulkObservableCollection<T> : ObservableCollection<T>
 
         _suppressNotification = false;
 
-        // Invia una singola notifica alla UI per forzare il refresh
+        // SEND A SINGLE NOTIFICATION TO THE UI TO FORCE A REFRESH
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
     }
 
