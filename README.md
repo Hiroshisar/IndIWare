@@ -11,6 +11,8 @@
 
 The application is developed with **.NET MAUI** and **C#**, and its purpose is to index files on a PC in order to provide a **faster and more organized search system** compared to the default Windows search.
 
+This version of the software works reasonably well, but it has optimization issues regarding the UI (resizing the window horizontally may cause lag, and potentially lead to application crashes).
+
 ---
 
 ## ✨ Features
@@ -44,7 +46,7 @@ The application is developed with **.NET MAUI** and **C#**, and its purpose is t
    ```bash
    dotnet build
    dotnet run
-
+   
 📖 License
 
 This project is released under a Custom Non-Commercial License (based on MIT).
