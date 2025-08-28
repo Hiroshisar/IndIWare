@@ -33,7 +33,7 @@ This version of the software works reasonably well, but it has optimization issu
 ## 🚀 Installation
 1. Clone this repository:
    ```bash
-   git clone https://github.com/Hiroshisar/indiware.git
+   git clone https://github.com/Hiroshisar/IndIWare.git
    cd indiware
 
 2. Open the solution in Visual Studio 2022 (or later).
