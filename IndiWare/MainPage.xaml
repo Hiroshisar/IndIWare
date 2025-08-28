@@ -132,7 +132,7 @@
                                     </VerticalStackLayout>
                                 </Border>
 
-                                <!-- BUTTON -->
+                                <!-- OPEN FILE BUTTON -->
                                 <Button Grid.Column="1"
                                         Text="Open"
                                         Clicked="OnViewFileClicked"
@@ -143,7 +143,7 @@
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
 
-                    <!-- FOOTER WITH BUTTON -->
+                    <!-- FOOTER WITH LOAD MORE BUTTON -->
                     <CollectionView.Footer>
                         <Grid Padding="10"
                               HorizontalOptions="FillAndExpand"

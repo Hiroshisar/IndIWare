@@ -6,8 +6,8 @@ namespace IndiWare
 {
     public partial class MainPage : ContentPage
     {
-        public List<FileItem> _results { get; set; } = new();
-        BulkObservableCollection<FileItem> Results = new();
+        public List<FileItem> _results { get; set; } = [];
+        BulkObservableCollection<FileItem> Results = [];
         private readonly DatabaseService _db;
         private int _currentPage = 0;
         private const int _pageSize = 100;
@@ -21,7 +21,7 @@ namespace IndiWare
 
         private async void OnIndexFilesClicked(object sender, EventArgs e)
         {
-            // MAKE Loading Overlay VISIBLE
+            // MAKE LOADING OVERLAY VISIBLE
             LoadingOverlay.IsVisible = true;
 
             // CLEAR PREVIOUS RESULTS
@@ -40,6 +40,7 @@ namespace IndiWare
                 {
                     // IF NOT EMPTY, CONFIRM REINDEXING
                     bool confirm = await DisplayAlert("Reindex", "The database is not empty. Do you want to reindex all files? This will erase existing data.", "Yes", "No");
+
                     // IF USER DECLINES, EXIT
                     if (!confirm)
                     {
@@ -167,11 +168,11 @@ namespace IndiWare
         private void OnSearchFileClicked(object sender, EventArgs e)
         {
             // START ASYNC SEARCH OPERATION
-            _ = SearchFileAsync();
+            SearchFileAsync();
         }
 
         // ASYNC METHOD TO PERFORM FILE SEARCH
-        private async Task SearchFileAsync()
+        private async void SearchFileAsync()
         {
             try
             {
@@ -233,7 +234,7 @@ namespace IndiWare
         {
             if (sender is Button button && button.CommandParameter is FileItem file)
             {
-                LoadSelectedItem(file);
+               LoadSelectedItem(file);
             }
         }
 
@@ -263,7 +264,7 @@ namespace IndiWare
 
         }
 
-        // EVENT HANDLER FOR Load More BUTTON CLICK
+        // EVENT HANDLER FOR LOAD MORE BUTTON CLICK
         public void OnLoadMoreClicked(object sender, EventArgs e)
         {
             // START ASYNC LOAD MORE ITEMS OPERATION
@@ -300,13 +301,13 @@ namespace IndiWare
                 }
                 else
                 {
-                    // HIDE Load More BUTTON IF NO MORE ITEMS
+                    // HIDE LOAD MORE BUTTON IF NO MORE ITEMS
                     LoadMoreButton.IsVisible = false;
                 }
             }
             finally
             {
-                // HIDE Loading Overlay WHEN DONE
+                // HIDE LOADING OVERLAY WHEN DONE
                 LoadingOverlay.IsVisible = false;
             }
         }
