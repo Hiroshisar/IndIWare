@@ -53,17 +53,42 @@ namespace IndiWare
                 await Task.Delay(50);
 
                 // GET LIST OF ACCESSIBLE DRIVES
-                var rootPaths = GetAccessibleDrives();
+                var availableDrives = GetAccessibleDrives();
+                var SelectedDrivePaths = new List<string>();
 
                 // IF NO DRIVES FOUND, ALERT AND EXIT
-                if (rootPaths.Count == 0)
+                if (availableDrives.Count <= 0)
                 {
                     await DisplayAlert("No Drives", "No accessible drives found.", "OK");
                     return;
                 }
+                // IF ONLY ONE DRIVE, SELECT IT AUTOMATICALLY
+                else if (availableDrives.Count == 1)
+                {
+                    SelectedDrivePaths.Add(availableDrives[0]);
+                }
+                // IF MULTIPLE DRIVES, SHOW SELECTION MODAL
+                else
+                {
+                    // SHOW DRIVE SELECTION MODAL
+                    var modal = new DriveSelectionPage(availableDrives);
+
+                    await Navigation.PushModalAsync(modal);
+                    SelectedDrivePaths = await modal.WaitForSelectionAsync();
+
+                    // IF NO DRIVES SELECTED, ALERT AND EXIT
+                    if (SelectedDrivePaths.Count <= 0)
+                    {
+                        await DisplayAlert("No selection", "No drive selected.", "OK");
+                        return;
+                    }
+                }
+
+                // DELAY TO ALLOW UI TO UPDATE
+                await Task.Delay(50);
 
                 // SCAN EACH DRIVE AND COLLECT FILES
-                foreach (var rootPath in rootPaths)
+                foreach (var rootPath in SelectedDrivePaths)
                 {
                     // SAFE FILE SCAN TO HANDLE PERMISSION ERRORS
                     List<string> files = await SafeFileScan(rootPath);
@@ -73,7 +98,7 @@ namespace IndiWare
                     {
                         try
                         {
-                            // CREATE FileItem OBJECT AND ADD TO RESULTS LIST
+                            // CREATE FILEITEM OBJECT AND ADD TO RESULTS LIST
                             _results.Add(new FileItem
                             {
                                 FilePath = file,
@@ -100,7 +125,7 @@ namespace IndiWare
             }
             finally
             {
-                // HIDE Loading Overlay WHEN DONE
+                // HIDE LOADING OVERLAY WHEN DONE
                 LoadingOverlay.IsVisible = false;
             }
         }
@@ -223,7 +248,7 @@ namespace IndiWare
                     await DisplayAlert("Search Complete", $"Found {_results.Count} items.", "OK");
                     LoadingOverlay.IsVisible = false;
 
-                    // MAKE Load More BUTTON VISIBLE IF MORE PAGES EXIST
+                    // MAKE LOAD MORE BUTTON VISIBLE IF MORE PAGES EXIST
                     LoadMoreButton.IsVisible = true;
                 });
             }
@@ -234,7 +259,7 @@ namespace IndiWare
         {
             if (sender is Button button && button.CommandParameter is FileItem file)
             {
-               LoadSelectedItem(file);
+                LoadSelectedItem(file);
             }
         }
 
