@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Non--Commercial-orange)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-Windows-lightgrey)](#)
 
-# IndiWare (IW) – File Indexing Tool
+# IndIWare (IW) – File Indexing Tool
 
 ## 📌 Overview
 **IndIWare (fusion between Indie, Index and software)** is a personal project, created both as a learning exercise and to address a practical need.  
